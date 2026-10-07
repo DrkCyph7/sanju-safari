@@ -80,4 +80,3 @@ export const dynamic = 'force-static'
 
 // Keep these imports available for the editorial icon language used in future content updates.
 void Bird; void CalendarDays; void Mountain
-۔
