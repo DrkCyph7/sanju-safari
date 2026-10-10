@@ -3,8 +3,18 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Udawalawe Safaris | Private Jeep Safari in Sri Lanka',
+  description: 'Private jeep safaris in Udawalawe National Park, shaped by local knowledge and a deep respect for wild places.',
+  metadataBase: new URL('https://udawalawesafaris.lk'),
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'Udawalawe Safaris | Private Jeep Safari in Sri Lanka',
+    description: 'Quiet roads. Wild places. A local view of Udawalawe.',
+    url: 'https://udawalawesafaris.lk',
+    siteName: 'Udawalawe Safaris',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image', title: 'Udawalawe Safaris', description: 'Private jeep safaris in Udawalawe National Park.' },
   generator: 'v0.app',
   icons: {
     icon: [
