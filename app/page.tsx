@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowRight, Camera, Check, ChevronDown, Clock3, Globe, MapPin, Menu, MessageCircle, Phone, Star, Video, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, Camera, Check, ChevronDown, Clock3, Globe, MapPin, Menu, MessageCircle, Phone, Star, Video, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, Trees, MessageSquare, CalendarCheck, User, Mail, Calendar, Users, Send, Tent } from 'lucide-react'
 import { motion, useInView, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection'
 import { SplitText } from '@/components/SplitText'
@@ -192,15 +192,16 @@ export default function Page() {
         <span>Sanju<br /><em>Safari</em></span>
       </a>
       <nav className="desktop-nav" aria-label="Primary navigation">
-        {['About', 'Safaris', 'Wildlife', 'Gallery', 'FAQ'].map((item, i) => (
+        {[['About', <Info key="a" size={14} />], ['Safaris', <Compass key="s" size={14} />], ['Wildlife', <Binoculars key="w" size={14} />], ['Gallery', <ImageIcon key="g" size={14} />], ['FAQ', <HelpCircle key="f" size={14} />]].map(([item, icon], i) => (
           <motion.a
-            key={item}
-            href={`#${item.toLowerCase()}`}
+            key={item as string}
+            href={`#${(item as string).toLowerCase()}`}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 + i * 0.07, duration: 0.4 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            {item}
+            {icon} {item}
           </motion.a>
         ))}
       </nav>
@@ -238,7 +239,9 @@ export default function Page() {
           </div>
           <p className="eyebrow light">Sanju Safari</p>
           <nav aria-label="Mobile navigation">
-            {['Home', 'About', 'Safaris', 'Wildlife', 'Gallery', 'FAQ', 'Contact'].map((item, i) => (
+            {['Home', 'About', 'Safaris', 'Wildlife', 'Gallery', 'FAQ', 'Contact'].map((item, i) => {
+              const icons = [<Tent key="h" />, <Info key="a" />, <Compass key="s" />, <Binoculars key="w" />, <ImageIcon key="g" />, <HelpCircle key="f" />, <Phone key="c" />]
+              return (
               <motion.a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -246,10 +249,11 @@ export default function Page() {
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06, duration: 0.35 }}
+                className="flex items-center justify-between"
               >
-                {item}<ArrowRight />
+                <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>{icons[i]} {item}</span><ArrowRight />
               </motion.a>
-            ))}
+            )})}
           </nav>
           <div className="menu-note">Private jeeps. Local knowledge. A quieter way into the wild.</div>
         </motion.div>
@@ -340,14 +344,14 @@ export default function Page() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 1.3 }}
         >
-          {['Private jeeps only', 'Expert local trackers', 'Hotel pickup available'].map((t, i) => (
+          {[['Private jeeps only', <CarFront key="c"/>], ['Expert local trackers', <UserCheck key="u"/>], ['Hotel pickup available', <MapPin key="m"/>]].map(([t, icon], i) => (
             <motion.span
-              key={t}
+              key={t as string}
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.3 + i * 0.12, duration: 0.45 }}
             >
-              <Check /> {t}
+              {icon} {t}
             </motion.span>
           ))}
         </motion.div>
@@ -369,8 +373,9 @@ export default function Page() {
         <span aria-hidden="true">ELEPHANTS&nbsp; · &nbsp;LEOPARDS&nbsp; · &nbsp;200+ BIRDS&nbsp; · &nbsp;UDAWALAWE&nbsp; · &nbsp;</span>
       </div>
       <StaggerContainer className="facts-inner" staggerDelay={0.15}>
-        {[['Hundreds', 'of wild elephants'], ['200+', 'bird species'], ['Leopards, crocs', 'buffalo & more'], ['~3 hrs', 'from Colombo']].map(([a, b]) => (
-          <StaggerItem key={a} className="fact">
+        {[['Hundreds', 'of wild elephants', <Binoculars key="b" size={32} />], ['200+', 'bird species', <Bird key="bi" size={32} />], ['Leopards, crocs', 'buffalo & more', <PawPrint key="p" size={32} />], ['~3 hrs', 'from Colombo', <Clock3 key="c" size={32} />]].map(([a, b, icon]) => (
+          <StaggerItem key={a as string} className="fact">
+            <span style={{ color: 'var(--gold)', marginBottom: '8px' }}>{icon}</span>
             <strong>{a}</strong>
             <span>{b}</span>
           </StaggerItem>
@@ -459,16 +464,17 @@ export default function Page() {
       <div className="wildlife-copy">
         <SectionIntro eyebrow="Read the landscape" title="Wildlife, on its own terms." copy="Udawalawe is open, bright and wonderfully unpredictable. Here is what you may find along the way." />
         <StaggerContainer className="wildlife-tabs" staggerDelay={0.08}>
-          {['Elephants', 'Leopard', 'Birds', 'Reptiles & Others'].map((item) => (
-            <StaggerItem key={item}>
+          {[['Elephants', <Binoculars key="e" size={14} />], ['Leopard', <PawPrint key="l" size={14} />], ['Birds', <Bird key="b" size={14} />], ['Reptiles & Others', <Camera key="p" size={14} />]].map(([item, icon]) => (
+            <StaggerItem key={item as string}>
               <motion.button
                 className={wildlife === item ? 'active' : ''}
-                onClick={() => setWildlife(item)}
+                onClick={() => setWildlife(item as string)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 300 }}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                {item}
+                {icon} {item}
               </motion.button>
             </StaggerItem>
           ))}
@@ -569,15 +575,16 @@ export default function Page() {
         <SectionIntro eyebrow="From the field" title="A glimpse of Udawalawe." />
       </AnimatedSection>
       <StaggerContainer className="filter-row" staggerDelay={0.06}>
-        {['All', 'Elephants', 'Birds', 'Landscapes', 'Jeeps'].map((item) => (
-          <StaggerItem key={item}>
+        {[['All', <ImageIcon key="a" size={14}/>], ['Elephants', <Binoculars key="e" size={14}/>], ['Birds', <Bird key="b" size={14}/>], ['Landscapes', <Trees key="l" size={14}/>], ['Jeeps', <CarFront key="j" size={14}/>]].map(([item, icon]) => (
+          <StaggerItem key={item as string}>
             <motion.button
               className={filter === item ? 'active' : ''}
-              onClick={() => setFilter(item)}
+              onClick={() => setFilter(item as string)}
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.94 }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              {item}
+              {icon} {item}
             </motion.button>
           </StaggerItem>
         ))}
@@ -747,16 +754,16 @@ export default function Page() {
               onSubmit={(e) => { e.preventDefault(); setSubmitted(true); window.open('https://wa.me/94763080364?text=' + encodeURIComponent('Hello Sanju Safari, I would like to enquire about a safari.'), '_blank') }}
             >
               <div className="form-grid">
-                <label>Name<input required name="name" placeholder="Your name" /></label>
-                <label>Email<input required type="email" name="email" placeholder="you@example.com" /></label>
-                <label>Phone / WhatsApp<input name="phone" placeholder="+94 ..." /></label>
-                <label>Safari type<select id="safari-type" name="safari"><option>Morning Safari</option><option>Afternoon Safari</option><option>Full-Day Safari</option><option>Safari + ETH</option></select></label>
-                <label>Date<input required type="date" name="date" /></label>
-                <label>Guests<input required type="number" min="1" max="6" name="guests" placeholder="2" /></label>
-                <label className="full">Pickup location<input name="pickup" placeholder="Hotel or town" /></label>
-                <label className="full">Message<textarea name="message" rows={3} placeholder="Anything we should know?" /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={12}/> Name</span><input required name="name" placeholder="Your name" /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={12}/> Email</span><input required type="email" name="email" placeholder="you@example.com" /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={12}/> Phone / WhatsApp</span><input name="phone" placeholder="+94 ..." /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Compass size={12}/> Safari type</span><select id="safari-type" name="safari"><option>Morning Safari</option><option>Afternoon Safari</option><option>Full-Day Safari</option><option>Safari + ETH</option></select></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={12}/> Date</span><input required type="date" name="date" /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Users size={12}/> Guests</span><input required type="number" min="1" max="6" name="guests" placeholder="2" /></label>
+                <label className="full"><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={12}/> Pickup location</span><input name="pickup" placeholder="Hotel or town" /></label>
+                <label className="full"><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MessageSquare size={12}/> Message</span><textarea name="message" rows={3} placeholder="Anything we should know?" /></label>
               </div>
-              <MagnetButton className="book-button" onClick={() => {}}>Continue on WhatsApp <ArrowRight /></MagnetButton>
+              <MagnetButton className="book-button" onClick={() => {}}>Continue on WhatsApp <Send size={16} /></MagnetButton>
             </motion.form>
           )}
         </AnimatePresence>
@@ -783,9 +790,9 @@ export default function Page() {
       </AnimatedSection>
       <AnimatedSection className="footer-links" direction="up" delay={0.2}>
         <p className="eyebrow">Explore</p>
-        {[['Our story', '#about'], ['Safaris', '#safaris'], ['Gallery', '#gallery'], ['Contact', '#contact']].map(([label, href]) => (
-          <motion.a key={label as string} href={href as string} whileHover={{ x: 6 }} transition={{ type: 'spring', stiffness: 300 }}>
-            <ArrowRight /> {label}
+        {[['Our story', '#about', <Info key="a" size={14} />], ['Safaris', '#safaris', <Compass key="s" size={14} />], ['Gallery', '#gallery', <ImageIcon key="g" size={14} />], ['Contact', '#contact', <Phone key="c" size={14} />]].map(([label, href, icon]) => (
+          <motion.a key={label as string} href={href as string} whileHover={{ x: 6 }} transition={{ type: 'spring', stiffness: 300 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {icon} {label}
           </motion.a>
         ))}
       </AnimatedSection>
