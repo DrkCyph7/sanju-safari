@@ -61,9 +61,46 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristInformationCenter',
+    name: 'Sanju Safari',
+    description: 'Private jeep safaris in Udawalawe National Park, Sri Lanka, shaped by local knowledge and a deep respect for wild places.',
+    url: 'https://udawalawesafaris.lk',
+    telephone: '+94763080364',
+    email: 'info@udawalawesafaris.lk',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Udawalawe',
+      addressRegion: 'Sabaragamuwa Province',
+      addressCountry: 'LK',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 6.4746,
+      longitude: 80.8987,
+    },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      opens: '05:00',
+      closes: '21:00',
+    },
+    priceRange: '$$',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5.0',
+      reviewCount: '128',
+    },
+  }
+
   return (
     <html lang="en">
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
