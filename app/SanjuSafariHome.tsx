@@ -2,16 +2,17 @@
 
 import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowRight, Camera, Check, ChevronDown, Clock3, Globe, MapPin, Menu, MessageCircle, Phone, Star, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, Trees, MessageSquare, User, Mail, Calendar, Users, Send, Tent } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowRight, Camera, Check, ChevronDown, Clock3, MapPin, Mail, Menu, MessageCircle, Phone, Star, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, Trees, MessageSquare, User, Calendar, Users, Send, Tent } from 'lucide-react'
+import { FaFacebookF, FaTripadvisor, FaGoogle } from 'react-icons/fa'
 import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from 'motion/react'
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection'
 import { SplitText } from '@/components/SplitText'
 import type { GalleryItem } from '@/lib/gallery'
 
 const packages = [
-  { title: 'Morning Safari', detail: 'First light, cool air, active wildlife.', duration: '3 hours', best: 'Best for first-time visitors', image: '/assets/safaris/morning-safari.png', bullets: ['Private jeep & tracker', 'Park gate assistance', 'Hotel pickup available'] },
-  { title: 'Afternoon Safari', detail: 'Warm light, waterholes and long shadows.', duration: '3 hours', best: 'Best for golden hour', image: '/assets/safaris/afternoon-safari.png', bullets: ['Private jeep & tracker', 'Flexible pickup', 'Sunset wildlife viewing'] },
-  { title: 'Full-Day Safari', detail: 'A slower, deeper day in elephant country.', duration: '6 hours', best: 'Best for photographers', image: '/assets/safaris/full-day-safari.png', bullets: ['Breakfast or lunch option', 'Private jeep & tracker', 'Multiple park zones'] },
+  { title: 'Morning Safari', detail: 'First light, cool air, active wildlife.', duration: '4 hours', best: 'Best for first-time visitors', image: '/assets/safaris/morning-safari.png', bullets: ['Private jeep & tracker', 'Park gate assistance', 'Hotel pickup available'] },
+  { title: 'Afternoon Safari', detail: 'Warm light, waterholes and long shadows.', duration: '4 hours', best: 'Best for golden hour', image: '/assets/safaris/afternoon-safari.png', bullets: ['Private jeep & tracker', 'Flexible pickup', 'Sunset wildlife viewing'] },
+  { title: 'Full-Day Safari', detail: 'A slower, deeper day in elephant country.', duration: '10 hours', best: 'Best for photographers', image: '/assets/safaris/full-day-safari.png', bullets: ['Breakfast or lunch option', 'Private jeep & tracker', 'Multiple park zones'] },
   { title: 'Safari + ETH', detail: 'Wildlife and a visit to the Elephant Transit Home.', duration: 'Half day', best: 'Best for families', image: '/assets/safaris/safari-transit-home.png', bullets: ['Private jeep & tracker', 'Transit Home visit', 'Hotel pickup available'] },
 ]
 const faqAnswers = [
@@ -129,7 +130,6 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
   const [gallery, setGallery] = useState<GalleryItem[]>(initialGallery)
   const [menuOpen, setMenuOpen] = useState(false)
   const [wildlife, setWildlife] = useState('Elephants')
-  const [filter, setFilter] = useState('All')
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
@@ -146,17 +146,14 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
       .catch((err) => console.error('Failed to load gallery images from /api/gallery:', err))
   }, [])
 
-  const categories = useMemo(() => {
-    const dynamicCats = Array.from(new Set(gallery.map((img) => img.category))).filter(Boolean)
-    const defaultCats = ['Elephants', 'Birds', 'Landscapes', 'Jeeps']
-    const combined = Array.from(new Set([...defaultCats, ...dynamicCats]))
-    return ['All', ...combined]
-  }, [gallery])
+  const galleryRef = useRef<HTMLDivElement>(null)
+  const scrollGallery = (direction: 'left' | 'right') => {
+    if (galleryRef.current) {
+      const scrollAmount = direction === 'left' ? -340 : 340
+      galleryRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
 
-  const visibleGallery = useMemo(
-    () => (filter === 'All' ? gallery : gallery.filter((item) => item.category === filter)),
-    [filter, gallery]
-  )
   const enquiry = (safari = 'Morning Safari') => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); const select = document.getElementById('safari-type') as HTMLSelectElement | null; if (select) select.value = safari }
   const wildlifeCopy = wildlife === 'Elephants' ? "The park\u2019s gentle giants are its heartbeat. Watch family groups move between grassland, scrub and water." : wildlife === 'Leopard' ? 'Elusive and patient, leopards are sometimes seen resting low in shade or crossing the track at first light.' : wildlife === 'Birds' ? 'From painted storks to kingfishers, more than 200 species bring constant movement to the wetlands.' : 'Look closely for mugger crocodiles, water buffalo, monkeys and monitor lizards in the margins.'
 
@@ -422,7 +419,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
     {/* ── About ── */}
     <section id="about" className="section about-section">
       <AnimatedSection className="about-image image-frame" direction="left" delay={0.1}>
-        <Image src="/assets/gallery/elephant-by-the-water.png" alt="Elephant standing beside a watering hole" fill sizes="(max-width: 768px) 100vw, 45vw" />
+        <Image src="/assets/gallery/Gallery16.jpeg" alt="Elephant standing beside a watering hole" fill sizes="(max-width: 768px) 100vw, 45vw" />
       </AnimatedSection>
       <AnimatedSection className="about-copy" direction="right" delay={0.2}>
         <SectionIntro eyebrow="A local point of view" title="The best sightings begin with listening." copy="Sanju Safari is a small, locally run operator built around the rhythm of the park. Our trackers know the back roads, the waterholes and when to wait." />
@@ -531,23 +528,14 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           </motion.div>
         </AnimatePresence>
       </div>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={wildlife}
-          className="wildlife-image image-frame"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-        >
-          <Image
-            src={wildlife === 'Birds' ? '/assets/gallery/wetland-birdlife.png' : wildlife === 'Reptiles & Others' ? '/assets/gallery/park-landscape.png' : '/assets/hero/hero.png'}
-            alt={`${wildlife} in Udawalawe National Park`}
-            fill
-            sizes="(max-width: 768px) 100vw, 42vw"
-          />
-        </motion.div>
-      </AnimatePresence>
+      <AnimatedSection className="wildlife-image image-frame" direction="right" delay={0.2}>
+        <Image
+          src="/assets/hero/hero.png"
+          alt="Wildlife in Udawalawe National Park"
+          fill
+          sizes="(max-width: 768px) 100vw, 42vw"
+        />
+      </AnimatedSection>
       <AnimatedSection className="season-bar">
         <div><span>Best time to visit</span><strong>January — September</strong></div>
         <div className="season-track"><span /><span /></div>
@@ -609,54 +597,47 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
 
     {/* ── Gallery ── */}
     <section id="gallery" className="section gallery-section">
-      <AnimatedSection>
-        <SectionIntro eyebrow="From the field" title="A glimpse of Udawalawe." />
-      </AnimatedSection>
-      <StaggerContainer className="filter-row" staggerDelay={0.06}>
-        {categories.map((cat) => {
-          let icon = <ImageIcon key={cat} size={14} />
-          if (cat === 'Elephants') icon = <Binoculars key="e" size={14} />
-          else if (cat === 'Birds') icon = <Bird key="b" size={14} />
-          else if (cat === 'Landscapes') icon = <Trees key="l" size={14} />
-          else if (cat === 'Jeeps') icon = <CarFront key="j" size={14} />
-
-          return (
-            <StaggerItem key={cat}>
-              <motion.button
-                className={filter === cat ? 'active' : ''}
-                onClick={() => setFilter(cat)}
-                whileHover={{ scale: 1.06 }}
-                whileTap={{ scale: 0.94 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                {icon} {cat}
-              </motion.button>
-            </StaggerItem>
-          )
-        })}
-      </StaggerContainer>
-      <div className="gallery-grid">
-        <AnimatePresence>
-          {visibleGallery.map((item, i) => (
-            <motion.button
-              className={`gallery-item gallery-${i % 3}`}
-              key={`${item.src}-${i}`}
-              onClick={() => setSelectedImage(item.src)}
-              aria-label={`Open ${item.alt}`}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              whileHover={{ scale: 1.02, zIndex: 2 }}
-            >
-              <Image src={item.src} alt={item.alt} fill sizes="(max-width: 768px) 45vw, 25vw" />
-            </motion.button>
-          ))}
-        </AnimatePresence>
-        {visibleGallery.length === 0 && (
-          <div style={{ gridColumn: '1 / -1', padding: '3rem 1rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+      <div className="gallery-header-row">
+        <AnimatedSection>
+          <SectionIntro eyebrow="From the field" title="A glimpse of Udawalawe." />
+        </AnimatedSection>
+        <div className="gallery-nav-buttons">
+          <button
+            onClick={() => scrollGallery('left')}
+            className="gallery-nav-btn"
+            aria-label="Scroll left in gallery"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <button
+            onClick={() => scrollGallery('right')}
+            className="gallery-nav-btn"
+            aria-label="Scroll right in gallery"
+          >
+            <ArrowRight size={16} />
+          </button>
+        </div>
+      </div>
+      <div className="gallery-grid" ref={galleryRef}>
+        {gallery.map((item, i) => (
+          <motion.button
+            className="gallery-item"
+            key={`${item.src}-${i}`}
+            onClick={() => setSelectedImage(item.src)}
+            aria-label={`Open photo ${i + 1}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            whileHover={{ y: -4 }}
+          >
+            <Image src={item.src} alt={item.alt || `Udawalawe safari photo ${i + 1}`} fill sizes="(max-width: 768px) 78vw, 310px" />
+          </motion.button>
+        ))}
+        {gallery.length === 0 && (
+          <div style={{ flex: '0 0 100%', padding: '3rem 1rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
             <ImageIcon size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-            <p>No images found in this category.</p>
+            <p>No images found in gallery.</p>
           </div>
         )}
       </div>
@@ -802,12 +783,11 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
             >
               <div className="form-grid">
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={12}/> Name</span><input required name="name" placeholder="Your name" /></label>
-                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={12}/> Email</span><input required type="email" name="email" placeholder="you@example.com" /></label>
-                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={12}/> Phone / WhatsApp</span><input name="phone" placeholder="+94 ..." /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={12}/> Phone / WhatsApp</span><input required name="phone" placeholder="+94 ..." /></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Compass size={12}/> Safari type</span><select id="safari-type" name="safari"><option>Morning Safari</option><option>Afternoon Safari</option><option>Full-Day Safari</option><option>Safari + ETH</option></select></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={12}/> Date</span><input required type="date" name="date" /></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Users size={12}/> Guests</span><input required type="number" min="1" max="6" name="guests" placeholder="2" /></label>
-                <label className="full"><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={12}/> Pickup location</span><input name="pickup" placeholder="Hotel or town" /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={12}/> Pickup location</span><input name="pickup" placeholder="Hotel or town" /></label>
                 <label className="full"><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MessageSquare size={12}/> Message</span><textarea name="message" rows={3} placeholder="Anything we should know?" /></label>
               </div>
               <MagnetButton className="book-button" onClick={() => {}}>Continue on WhatsApp <Send size={16} /></MagnetButton>
@@ -820,6 +800,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           <p className="eyebrow">Find us in the field</p>
           <a href="tel:+94763080364"><Phone /> +94 76 308 0364</a>
           <a href="https://wa.me/94763080364"><MessageCircle /> WhatsApp us</a>
+          <a href="mailto:info@udawalawesafaris.lk"><Mail /> info@udawalawesafaris.lk</a>
           <p className="address"><strong>Udawalawe, Sri Lanka</strong><br />Daily, 05:00 — 21:00<br />Pickup around Udawalawe and nearby towns.</p>
         </div>
         <iframe title="Udawalawe National Park map" src="https://www.google.com/maps?q=Udawalawe%20National%20Park%20Sri%20Lanka&output=embed" loading="lazy" />
@@ -834,15 +815,18 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
             <Image
               src="/assets/logo/LogoW.png"
               alt="Sanju Safari Logo"
-              width={44}
-              height={51}
+              width={58}
+              height={67}
               className="brand-logo footer-logo"
             />
           </div>
           <span className="brand-text">Sanju<br /><em>Safari</em></span>
         </a>
         <p>Quiet roads. Wild places.<br />A local view of Udawalawe.</p>
-        <a className="footer-location" href="#contact"><MapPin /> Udawalawe, Sri Lanka</a>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <a className="footer-location" href="#contact"><MapPin /> Udawalawe, Sri Lanka</a>
+          <a className="footer-location" href="mailto:info@udawalawesafaris.lk"><Mail /> info@udawalawesafaris.lk</a>
+        </div>
       </AnimatedSection>
       <AnimatedSection className="footer-links" direction="up" delay={0.2}>
         <p className="eyebrow">Explore</p>
@@ -856,8 +840,9 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
         <p className="eyebrow">Follow along</p>
         <div>
           {[
-            ['https://facebook.com/udawalalawesanjusafari', 'Facebook', <Globe key="glob" />],
-            ['https://www.tripadvisor.com/', 'TripAdvisor', <Star key="star" />],
+            ['https://facebook.com/udawalalawesanjusafari', 'Facebook', <FaFacebookF key="fb" />],
+            ['https://www.tripadvisor.com/', 'TripAdvisor', <FaTripadvisor key="ta" />],
+            ['https://share.google/yk3sG5YKhAnwpd7uq', 'Google', <FaGoogle key="google" />],
           ].map(([href, label, icon]) => (
             <motion.a
               key={label as string} href={href as string} target={href !== '#contact' ? '_blank' : undefined}
@@ -877,6 +862,17 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
       <div className="footer-bottom">
         <span>© 2026 Sanju Safari. All rights reserved.</span>
         <span>Please respect wildlife. No feeding, no loud noise.</span>
+        <span>
+          Designed and developed by{' '}
+          <a
+            href="https://nexcy.lk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="credit-link"
+          >
+            NexCy Technologies
+          </a>
+        </span>
       </div>
     </footer>
 
