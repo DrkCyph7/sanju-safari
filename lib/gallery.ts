@@ -22,6 +22,8 @@ export function getGalleryImages(): GalleryItem[] {
 
   try {
     const files = fs.readdirSync(galleryDir)
+    // Sort naturally so Gallery2 comes before Gallery10, etc.
+    files.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
 
     const images: GalleryItem[] = []
 
