@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowLeft, ArrowRight, Camera, Check, ChevronDown, Clock3, MapPin, Mail, Menu, MessageCircle, Phone, Star, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, Trees, MessageSquare, User, Calendar, Users, Send, Tent } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowRight, Camera, Check, ChevronDown, Clock3, MapPin, Mail, Menu, MessageCircle, Phone, Star, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, MessageSquare, User, Calendar, Users, Send, Tent } from 'lucide-react'
 import { FaFacebookF, FaTripadvisor, FaGoogle } from 'react-icons/fa'
 import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from 'motion/react'
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection'
@@ -145,6 +145,29 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [whatsappUrl, setWhatsappUrl] = useState('')
+  const [minDate, setMinDate] = useState<string>('')
+
+  useEffect(() => {
+    setMinDate(new Date().toISOString().split('T')[0])
+  }, [])
+
+  // Find index of selected image in gallery
+  const currentImageIndex = useMemo(() => {
+    if (!selectedImage) return -1
+    return gallery.findIndex((item) => item.src === selectedImage)
+  }, [selectedImage, gallery])
+
+  const showPrevImage = () => {
+    if (gallery.length === 0) return
+    const prevIndex = currentImageIndex <= 0 ? gallery.length - 1 : currentImageIndex - 1
+    setSelectedImage(gallery[prevIndex].src)
+  }
+
+  const showNextImage = () => {
+    if (gallery.length === 0) return
+    const nextIndex = currentImageIndex >= gallery.length - 1 ? 0 : currentImageIndex + 1
+    setSelectedImage(gallery[nextIndex].src)
+  }
 
   const handleBookingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -193,8 +216,9 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
-  // Automatically fetch images from /api/gallery to stay in sync with public/assets/gallery
+  // Only fetch images from /api/gallery if initialGallery was empty to prevent redundant client network calls
   useEffect(() => {
+    if (gallery.length > 0) return
     fetch('/api/gallery')
       .then((res) => res.json())
       .then((data) => {
@@ -203,7 +227,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
         }
       })
       .catch((err) => console.error('Failed to load gallery images from /api/gallery:', err))
-  }, [])
+  }, [gallery.length])
 
   const galleryRef = useRef<HTMLDivElement>(null)
   const scrollGallery = (direction: 'left' | 'right') => {
@@ -217,15 +241,26 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
   const wildlifeCopy = wildlife === 'Elephants' ? "The park\u2019s gentle giants are its heartbeat. Watch family groups move between grassland, scrub and water." : wildlife === 'Leopard' ? 'Elusive and patient, leopards are sometimes seen resting low in shade or crossing the track at first light.' : wildlife === 'Birds' ? 'From painted storks to kingfishers, more than 200 species bring constant movement to the wetlands.' : 'Look closely for mugger crocodiles, water buffalo, monkeys and monitor lizards in the margins.'
 
   useEffect(() => {
-    if (menuOpen) {
+    if (menuOpen || selectedImage) {
       document.body.style.overflow = 'hidden'
-      const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false) }
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          if (selectedImage) setSelectedImage(null)
+          else setMenuOpen(false)
+        } else if (selectedImage) {
+          if (e.key === 'ArrowLeft') showPrevImage()
+          if (e.key === 'ArrowRight') showNextImage()
+        }
+      }
       window.addEventListener('keydown', handleKeyDown)
-      return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', handleKeyDown) }
+      return () => {
+        document.body.style.overflow = ''
+        window.removeEventListener('keydown', handleKeyDown)
+      }
     } else {
       document.body.style.overflow = ''
     }
-  }, [menuOpen])
+  }, [menuOpen, selectedImage, currentImageIndex, gallery])
 
   return <main className="site-shell">
     <GlowCursor />
@@ -713,7 +748,10 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
     <AnimatePresence>
       {selectedImage && (
         <motion.div
-          className="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer"
+          className="lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image viewer"
           onClick={() => setSelectedImage(null)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -721,6 +759,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           transition={{ duration: 0.3 }}
         >
           <motion.button
+            className="lightbox-close"
             aria-label="Close image"
             onClick={() => setSelectedImage(null)}
             initial={{ scale: 0, rotate: -90 }}
@@ -730,15 +769,49 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           >
             <X />
           </motion.button>
+          {gallery.length > 1 && (
+            <>
+              <button
+                className="lightbox-nav-btn lightbox-prev"
+                aria-label="Previous photograph"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  showPrevImage()
+                }}
+              >
+                <ArrowLeft size={22} />
+              </button>
+              <button
+                className="lightbox-nav-btn lightbox-next"
+                aria-label="Next photograph"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  showNextImage()
+                }}
+              >
+                <ArrowRight size={22} />
+              </button>
+              <div className="lightbox-counter">
+                {currentImageIndex >= 0 ? `${currentImageIndex + 1} / ${gallery.length}` : ''}
+              </div>
+            </>
+          )}
           <motion.div
             style={{ position: 'relative', width: '100%', height: '100%' }}
             initial={{ scale: 0.88, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.88, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Image src={selectedImage} alt="Expanded safari photograph" fill sizes="90vw" style={{ objectFit: 'contain' }} />
+            <Image
+              src={selectedImage}
+              alt="Expanded safari photograph"
+              fill
+              sizes="90vw"
+              priority
+              style={{ objectFit: 'contain' }}
+            />
           </motion.div>
         </motion.div>
       )}
@@ -785,6 +858,8 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           return (
             <div className={`faq ${openFaq === i ? 'open' : ''}`} key={questions[i]}>
               <motion.button
+                id={`faq-btn-${i}`}
+                aria-controls={`faq-panel-${i}`}
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 aria-expanded={openFaq === i}
                 whileTap={{ scale: 0.99 }}
@@ -798,9 +873,12 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
                   <ChevronDown />
                 </motion.span>
               </motion.button>
-              <AnimatePresence>
+              <AnimatePresence initial={false}>
                 {openFaq === i && (
                   <motion.p
+                    id={`faq-panel-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-btn-${i}`}
                     initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                     animate={{ opacity: 1, height: 'auto', marginBottom: 22 }}
                     exit={{ opacity: 0, height: 0, marginBottom: 0 }}
@@ -862,7 +940,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={12}/> Name</span><input required name="name" placeholder="Your name" /></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={12}/> Phone / WhatsApp</span><input required name="phone" placeholder="+94 ..." /></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Compass size={12}/> Safari type</span><select id="safari-type" name="safari"><option>Morning Safari</option><option>Afternoon Safari</option><option>Full-Day Safari</option><option>Safari + ETH</option></select></label>
-                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={12}/> Date</span><input required type="date" name="date" /></label>
+                <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={12}/> Date</span><input required type="date" name="date" min={minDate} /></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Users size={12}/> Guests</span><input required type="number" min="1" max="6" name="guests" placeholder="2" /></label>
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={12}/> Pickup location</span><input name="pickup" placeholder="Hotel or town" /></label>
                 <label className="full"><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MessageSquare size={12}/> Message</span><textarea name="message" rows={3} placeholder="Anything we should know?" /></label>
@@ -970,5 +1048,3 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
     </a>
   </main>
 }
-
-export const dynamic = 'force-static'
