@@ -2,17 +2,16 @@
 
 import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowRight, Camera, Check, ChevronDown, Clock3, Globe, MapPin, Menu, MessageCircle, Phone, Star, Video, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, Trees, MessageSquare, CalendarCheck, User, Mail, Calendar, Users, Send, Tent } from 'lucide-react'
-import { motion, useInView, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react'
+import { ArrowDown, ArrowRight, Camera, Check, ChevronDown, Clock3, Globe, MapPin, Menu, MessageCircle, Phone, Star, X, Info, Compass, Image as ImageIcon, HelpCircle, CarFront, UserCheck, Binoculars, Bird, PawPrint, Trees, MessageSquare, User, Mail, Calendar, Users, Send, Tent } from 'lucide-react'
+import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from 'motion/react'
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection'
 import { SplitText } from '@/components/SplitText'
-import { CountUp } from '@/components/CountUp'
 
 const packages = [
-  { title: 'Morning Safari', detail: 'First light, cool air, active wildlife.', duration: '3 hours', best: 'Best for first-time visitors', image: '/images/hero.png', price: '65', bullets: ['Private jeep & tracker', 'Park gate assistance', 'Hotel pickup available'] },
-  { title: 'Afternoon Safari', detail: 'Warm light, waterholes and long shadows.', duration: '3 hours', best: 'Best for golden hour', image: '/images/elephant-1.png', price: '65', bullets: ['Private jeep & tracker', 'Flexible pickup', 'Sunset wildlife viewing'] },
-  { title: 'Full-Day Safari', detail: 'A slower, deeper day in elephant country.', duration: '6 hours', best: 'Best for photographers', image: '/images/landscape.png', price: '120', bullets: ['Breakfast or lunch option', 'Private jeep & tracker', 'Multiple park zones'] },
-  { title: 'Safari + ETH', detail: 'Wildlife and a visit to the Elephant Transit Home.', duration: 'Half day', best: 'Best for families', image: '/images/bird.png', price: '85', bullets: ['Private jeep & tracker', 'Transit Home visit', 'Hotel pickup available'] },
+  { title: 'Morning Safari', detail: 'First light, cool air, active wildlife.', duration: '3 hours', best: 'Best for first-time visitors', image: '/images/hero.png', bullets: ['Private jeep & tracker', 'Park gate assistance', 'Hotel pickup available'] },
+  { title: 'Afternoon Safari', detail: 'Warm light, waterholes and long shadows.', duration: '3 hours', best: 'Best for golden hour', image: '/images/elephant-1.png', bullets: ['Private jeep & tracker', 'Flexible pickup', 'Sunset wildlife viewing'] },
+  { title: 'Full-Day Safari', detail: 'A slower, deeper day in elephant country.', duration: '6 hours', best: 'Best for photographers', image: '/images/landscape.png', bullets: ['Breakfast or lunch option', 'Private jeep & tracker', 'Multiple park zones'] },
+  { title: 'Safari + ETH', detail: 'Wildlife and a visit to the Elephant Transit Home.', duration: 'Half day', best: 'Best for families', image: '/images/bird.png', bullets: ['Private jeep & tracker', 'Transit Home visit', 'Hotel pickup available'] },
 ]
 const gallery = [
   ['/images/hero.png', 'Elephants at sunrise', 'Elephants'], ['/images/elephant-1.png', 'Elephant by the water', 'Elephants'], ['/images/landscape.png', 'The road in', 'Landscapes'], ['/images/bird.png', 'Wetland birdlife', 'Birds'], ['/images/hero.png', 'Golden grassland', 'Landscapes'], ['/images/elephant-1.png', 'A quiet afternoon', 'Elephants'], ['/images/bird.png', 'Kingfisher in the wetland', 'Birds'], ['/images/landscape.png', 'Jeep on the park track', 'Jeeps'],
@@ -28,25 +27,24 @@ function SectionIntro({ eyebrow, title, copy }: { eyebrow: string; title: string
     <div className="section-intro" ref={ref}>
       <motion.p
         className="eyebrow"
-        initial={{ opacity: 0, y: 16, letterSpacing: '0.04em' }}
+        initial={{ opacity: 0, y: 12, letterSpacing: '0.04em' }}
         animate={inView ? { opacity: 1, y: 0, letterSpacing: '0.16em' } : {}}
-        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         {eyebrow}
       </motion.p>
       <SplitText
         text={title}
         tag="h2"
-        delay={0.1}
-        stagger={0.02}
-        blur={true}
+        delay={0.05}
+        stagger={0.03}
       />
       {copy && (
         <motion.p
           className="intro-copy"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.4 }}
+          transition={{ duration: 0.55, delay: 0.2 }}
         >
           {copy}
         </motion.p>
@@ -55,101 +53,75 @@ function SectionIntro({ eyebrow, title, copy }: { eyebrow: string; title: string
   )
 }
 
-// Tilt card with glare
+// High-performance card with subtle lift and glow
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLElement>(null)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const springX = useSpring(x, { stiffness: 200, damping: 22 })
-  const springY = useSpring(y, { stiffness: 200, damping: 22 })
-  const rotateX = useTransform(springY, [-0.5, 0.5], [8, -8])
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-8, 8])
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = ref.current?.getBoundingClientRect()
-    if (!rect) return
-    x.set((e.clientX - rect.left) / rect.width - 0.5)
-    y.set((e.clientY - rect.top) / rect.height - 0.5)
-  }
-  const handleMouseLeave = () => { x.set(0); y.set(0) }
-
   return (
     <motion.article
-      ref={ref as React.RefObject<HTMLElement>}
-      className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 1000, position: 'relative' }}
-      whileHover={{ scale: 1.03 }}
-      transition={{ scale: { duration: 0.25, ease: 'easeOut' } }}
+      className={`${className} tilt-card-optimized`}
+      whileHover={{ y: -6, scale: 1.015 }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      style={{ position: 'relative' }}
     >
       {children}
-      <motion.div
-        style={{
-          position: 'absolute', inset: 0, borderRadius: 'inherit', pointerEvents: 'none', zIndex: 20,
-          background: useTransform(
-            [springX, springY] as [typeof springX, typeof springY],
-            ([sx, sy]: number[]) =>
-              `radial-gradient(circle at ${(sx + 0.5) * 100}% ${(sy + 0.5) * 100}%, rgba(255,255,255,0.12) 0%, transparent 60%)`
-          ),
-        }}
-      />
     </motion.article>
   )
 }
 
-// Magnet button
+// Tactile, instantaneous response button
 function MagnetButton({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
-  const ref = useRef<HTMLButtonElement>(null)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const springX = useSpring(x, { stiffness: 300, damping: 20 })
-  const springY = useSpring(y, { stiffness: 300, damping: 20 })
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = ref.current?.getBoundingClientRect()
-    if (!rect) return
-    x.set((e.clientX - rect.left - rect.width / 2) * 0.35)
-    y.set((e.clientY - rect.top - rect.height / 2) * 0.35)
-  }
-  const handleMouseLeave = () => { x.set(0); y.set(0) }
-
   return (
     <motion.button
-      ref={ref}
       className={className}
       onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ x: springX, y: springY }}
+      whileHover={{ scale: 1.04, y: -2 }}
+      whileTap={{ scale: 0.96 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
     >
       {children}
     </motion.button>
   )
 }
 
-// GlowCursor
+// GPU-accelerated ambient cursor glow (fine-pointer only, zero overhead on mobile)
 function GlowCursor() {
+  const [enabled, setEnabled] = useState(false)
   const x = useMotionValue(-400)
   const y = useMotionValue(-400)
-  const springX = useSpring(x, { stiffness: 60, damping: 15 })
-  const springY = useSpring(y, { stiffness: 60, damping: 15 })
+  const springX = useSpring(x, { stiffness: 180, damping: 24 })
+  const springY = useSpring(y, { stiffness: 180, damping: 24 })
 
   useEffect(() => {
-    const move = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY) }
-    window.addEventListener('mousemove', move)
+    if (!window.matchMedia('(pointer: fine)').matches) return
+    setEnabled(true)
+    const move = (e: MouseEvent) => {
+      x.set(e.clientX)
+      y.set(e.clientY)
+    }
+    window.addEventListener('mousemove', move, { passive: true })
     return () => window.removeEventListener('mousemove', move)
   }, [x, y])
+
+  if (!enabled) return null
 
   return (
     <motion.div
       aria-hidden="true"
       style={{
-        position: 'fixed', left: springX, top: springY,
-        translateX: '-50%', translateY: '-50%',
-        width: 400, height: 400, borderRadius: '50%', pointerEvents: 'none', zIndex: 1,
-        background: 'radial-gradient(circle, rgba(255,193,94,0.09) 0%, rgba(255,138,61,0.03) 45%, transparent 70%)',
-        mixBlendMode: 'screen',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        x: springX,
+        y: springY,
+        translateX: '-50%',
+        translateY: '-50%',
+        width: 320,
+        height: 320,
+        borderRadius: '50%',
+        pointerEvents: 'none',
+        zIndex: 1,
+        background: 'radial-gradient(circle, rgba(255,193,94,0.08) 0%, rgba(255,138,61,0.02) 50%, transparent 70%)',
+        willChange: 'transform',
       }}
     />
   )
@@ -264,35 +236,23 @@ export default function Page() {
     <section id="home" className="hero">
       <Image src="/images/hero.png" alt="Elephants walking through golden grass at sunrise" fill priority sizes="100vw" className="hero-image" />
       <div className="hero-overlay" />
-      <motion.div
-        className="hero-orbit orbit-one"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 90, repeat: Infinity, ease: 'linear' }}
-      />
-      <motion.div
-        className="hero-orbit orbit-two"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-      />
+      <div className="hero-orbit orbit-one" aria-hidden="true" />
+      <div className="hero-orbit orbit-two" aria-hidden="true" />
       <div className="hero-content">
         <motion.div
           className="glass-kicker"
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={{ opacity: 0, y: 16, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
         >
-          <motion.span
-            className="pulse-dot"
-            animate={{ boxShadow: ['0 0 0 4px rgba(255,138,61,0.15)', '0 0 0 10px rgba(255,138,61,0)', '0 0 0 4px rgba(255,138,61,0.15)'] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
+          <span className="pulse-dot" aria-hidden="true" />
           Udawalawe National Park · Sri Lanka
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
         >
           {['Into the', ''].map((line, li) => (
             <span key={li} style={{ display: 'block', overflow: 'hidden', paddingBottom: '0.2em', marginBottom: '-0.2em' }}>
@@ -300,7 +260,7 @@ export default function Page() {
                 <motion.em
                   initial={{ y: '100%' }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.75, delay: 0.75, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.6, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                   style={{ display: 'block', color: 'var(--gold)' }}
                 >
                   Elephant Country.
@@ -309,7 +269,7 @@ export default function Page() {
                 <motion.span
                   initial={{ y: '100%' }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.75, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                   style={{ display: 'block' }}
                 >
                   {line}
@@ -321,20 +281,20 @@ export default function Page() {
 
         <motion.p
           className="hero-copy"
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.95 }}
+          transition={{ duration: 0.5, delay: 0.65 }}
         >
           Private jeep safaris shaped by local knowledge, quiet roads and a deep respect for wild places.
         </motion.p>
         <motion.div
           className="hero-actions"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
         >
           <MagnetButton className="book-button" onClick={() => enquiry()}>Book your safari <ArrowRight /></MagnetButton>
-          <motion.a className="outline-button" href="https://wa.me/94763080364" target="_blank" rel="noreferrer" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+          <motion.a className="outline-button" href="https://wa.me/94763080364" target="_blank" rel="noreferrer" whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
             <MessageCircle /> WhatsApp us
           </motion.a>
         </motion.div>
@@ -342,28 +302,24 @@ export default function Page() {
           className="trust-row"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 1.3 }}
+          transition={{ duration: 0.5, delay: 0.95 }}
         >
           {[['Private jeeps only', <CarFront key="c"/>], ['Expert local trackers', <UserCheck key="u"/>], ['Hotel pickup available', <MapPin key="m"/>]].map(([t, icon], i) => (
             <motion.span
               key={t as string}
-              initial={{ opacity: 0, x: -12 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.3 + i * 0.12, duration: 0.45 }}
+              transition={{ delay: 0.95 + i * 0.08, duration: 0.35 }}
             >
               {icon} {t}
             </motion.span>
           ))}
         </motion.div>
       </div>
-      <motion.a
-        className="scroll-cue" href="#facts"
-        animate={{ opacity: [0.4, 1, 0.4] }}
-        transition={{ duration: 2.5, repeat: Infinity }}
-      >
+      <a className="scroll-cue" href="#facts">
         <span>Scroll to explore</span>
         <ArrowDown />
-      </motion.a>
+      </a>
     </section>
 
     {/* ── Facts strip ── */}
@@ -438,7 +394,9 @@ export default function Page() {
                 <span className="best-tag">{pack.best}</span>
                 <ul>{pack.bullets.map((b) => <li key={b}><Check />{b}</li>)}</ul>
                 <div className="package-footer">
-                  <strong>USD {pack.price}<small> / jeep</small></strong>
+                  <span className="package-capacity">
+                    <Users size={13} /> Up to 6 guests
+                  </span>
                   <motion.button onClick={() => enquiry(pack.title)} whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 300 }}>
                     Enquire <ArrowRight />
                   </motion.button>
@@ -455,7 +413,7 @@ export default function Page() {
         viewport={{ once: true }}
         transition={{ delay: 0.5 }}
       >
-        Park entry fees extra. Prices per jeep, up to 6 guests.
+        All safaris are private for up to 6 guests per jeep. Park entry fees are paid at the gate.
       </motion.p>
     </section>
 
@@ -483,10 +441,10 @@ export default function Page() {
           <motion.div
             className="wildlife-description"
             key={wildlife}
-            initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -12, filter: 'blur(4px)' }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
           >
             <h3>{wildlife}</h3>
             <p>{wildlifeCopy}</p>
@@ -497,10 +455,10 @@ export default function Page() {
         <motion.div
           key={wildlife}
           className="wildlife-image image-frame"
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.02 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
         >
           <Image
             src={wildlife === 'Birds' ? '/images/bird.png' : wildlife === 'Reptiles & Others' ? '/images/landscape.png' : '/images/hero.png'}
@@ -523,7 +481,7 @@ export default function Page() {
         <SectionIntro eyebrow="Why ride with us" title="Good days start with good company." />
       </AnimatedSection>
       <StaggerContainer className="feature-grid" staggerDelay={0.09}>
-        {[['◌', 'Private jeeps', 'Your group, your pace, no shared rides.'], ['⌁', 'Local expert guides', 'Knowledge earned across years in the park.'], ['↗', 'Flexible pickup', 'From hotels around Udawalawe and beyond.'], ['♧', 'Ethical viewing', 'We keep wildlife calm, safe and respected.'], ['≈', 'Transparent pricing', 'Clear quotes with no surprise extras.'], ['◉', '24/7 WhatsApp support', 'A real person, before and after your drive.']].map(([icon, title, copy]) => (
+        {[['◌', 'Private jeeps', 'Your group, your pace, no shared rides.'], ['⌁', 'Local expert guides', 'Knowledge earned across years in the park.'], ['↗', 'Flexible pickup', 'From hotels around Udawalawe and beyond.'], ['♧', 'Ethical viewing', 'We keep wildlife calm, safe and respected.'], ['≈', 'Transparent quotes', 'Clear quotes with no surprise extras.'], ['◉', '24/7 WhatsApp support', 'A real person, before and after your drive.']].map(([icon, title, copy]) => (
           <StaggerItem key={title} direction="up">
             <motion.div
               className="feature glass-card"
@@ -589,30 +547,25 @@ export default function Page() {
           </StaggerItem>
         ))}
       </StaggerContainer>
-      <motion.div
-        className="gallery-grid"
-        layout
-        transition={{ layout: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      >
-        <AnimatePresence mode="popLayout">
+      <div className="gallery-grid">
+        <AnimatePresence>
           {visibleGallery.map(([src, alt], i) => (
             <motion.button
-              layout
               className={`gallery-item gallery-${i % 3}`}
               key={`${src}-${i}`}
               onClick={() => setSelectedImage(src)}
               aria-label={`Open ${alt}`}
-              initial={{ opacity: 0, scale: 0.92 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.88 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              whileHover={{ scale: 1.03, zIndex: 2 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              whileHover={{ scale: 1.02, zIndex: 2 }}
             >
               <Image src={src} alt={alt} fill sizes="(max-width: 768px) 45vw, 25vw" />
             </motion.button>
           ))}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </section>
 
     {/* ── Lightbox ── */}
@@ -800,11 +753,8 @@ export default function Page() {
         <p className="eyebrow">Follow along</p>
         <div>
           {[
-            ['https://www.instagram.com/', 'Instagram', <Camera key="cam" />],
             ['https://facebook.com/udawalalawesanjusafari', 'Facebook', <Globe key="glob" />],
             ['https://www.tripadvisor.com/', 'TripAdvisor', <Star key="star" />],
-            ['https://www.youtube.com/', 'YouTube', <Video key="vid" />],
-            ['#contact', 'Contact us', <MessageCircle key="msg" />],
           ].map(([href, label, icon]) => (
             <motion.a
               key={label as string} href={href as string} target={href !== '#contact' ? '_blank' : undefined}
@@ -827,14 +777,13 @@ export default function Page() {
       </div>
     </footer>
 
-    <motion.a
-      className="whatsapp-float" href="https://wa.me/94763080364" aria-label="Chat on WhatsApp"
-      animate={{ y: [0, -6, 0] }}
-      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-      whileHover={{ scale: 1.12 }}
+    <a
+      className="whatsapp-float"
+      href="https://wa.me/94763080364"
+      aria-label="Chat on WhatsApp"
     >
       <MessageCircle />
-    </motion.a>
+    </a>
   </main>
 }
 

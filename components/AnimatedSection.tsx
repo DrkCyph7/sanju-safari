@@ -18,12 +18,12 @@ export function AnimatedSection({
   className,
   delay = 0,
   direction = 'up',
-  distance = 40,
-  duration = 0.7,
+  distance = 28,
+  duration = 0.55,
   once = true,
 }: AnimatedSectionProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once, margin: '-80px' })
+  const inView = useInView(ref, { once, margin: '-60px' })
 
   const initialX = direction === 'left' ? -distance : direction === 'right' ? distance : 0
   const initialY = direction === 'up' ? distance : direction === 'down' ? -distance : 0
@@ -32,9 +32,10 @@ export function AnimatedSection({
     <motion.div
       ref={ref}
       className={className}
-      initial={{ opacity: 0, x: initialX, y: initialY, filter: 'blur(4px)' }}
-      animate={inView ? { opacity: 1, x: 0, y: 0, filter: 'blur(0px)' } : {}}
+      initial={{ opacity: 0, x: initialX, y: initialY }}
+      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
       transition={{ duration, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      style={{ willChange: inView ? 'auto' : 'transform, opacity' }}
     >
       {children}
     </motion.div>
@@ -48,7 +49,7 @@ interface StaggerContainerProps {
   once?: boolean
 }
 
-export function StaggerContainer({ children, className, staggerDelay = 0.1, once = true }: StaggerContainerProps) {
+export function StaggerContainer({ children, className, staggerDelay = 0.08, once = true }: StaggerContainerProps) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once, margin: '-60px' })
 
@@ -81,20 +82,19 @@ export function StaggerItem({
   className?: string
   direction?: 'up' | 'left' | 'right' | 'none'
 }) {
-  const y = direction === 'up' ? 30 : 0
-  const x = direction === 'left' ? -30 : direction === 'right' ? 30 : 0
+  const y = direction === 'up' ? 20 : 0
+  const x = direction === 'left' ? -20 : direction === 'right' ? 20 : 0
 
   return (
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y, x, filter: 'blur(6px)' },
+        hidden: { opacity: 0, y, x },
         visible: {
           opacity: 1,
           y: 0,
           x: 0,
-          filter: 'blur(0px)',
-          transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+          transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
         },
       }}
     >

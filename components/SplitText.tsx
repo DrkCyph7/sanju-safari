@@ -18,15 +18,14 @@ export function SplitText({
   className,
   tag = 'h2',
   delay = 0,
-  stagger = 0.025,
-  blur = true,
+  stagger = 0.03,
   once = true,
 }: SplitTextProps) {
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once, margin: '-60px' })
   const Tag = tag as 'h1' | 'h2' | 'h3' | 'p' | 'span'
 
-  // Split by word to preserve line-breaking
+  // Split by word for efficient, hardware-composited text reveal
   const words = text.split(' ')
 
   return (
@@ -37,31 +36,19 @@ export function SplitText({
       style={{ display: 'inline-flex', flexWrap: 'wrap', gap: '0 0.28em' }}
     >
       {words.map((word, wi) => (
-        <span key={wi} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
-          {word.split('').map((char, ci) => {
-            const index = words.slice(0, wi).join('').length + wi + ci
-            return (
-              <motion.span
-                key={ci}
-                aria-hidden="true"
-                style={{ display: 'inline-block' }}
-                initial={{ opacity: 0, y: 24, ...(blur ? { filter: 'blur(8px)' } : {}) }}
-                animate={
-                  inView
-                    ? { opacity: 1, y: 0, ...(blur ? { filter: 'blur(0px)' } : {}) }
-                    : {}
-                }
-                transition={{
-                  duration: 0.55,
-                  delay: delay + index * stagger,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-              >
-                {char}
-              </motion.span>
-            )
-          })}
-        </span>
+        <motion.span
+          key={wi}
+          style={{ display: 'inline-block', willChange: inView ? 'auto' : 'transform, opacity' }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{
+            duration: 0.45,
+            delay: delay + wi * stagger,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
+        >
+          {word}
+        </motion.span>
       ))}
     </Tag>
   )
