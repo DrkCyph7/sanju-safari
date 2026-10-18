@@ -68,9 +68,20 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
 }
 
 // Tactile, instantaneous response button
-function MagnetButton({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
+function MagnetButton({
+  children,
+  className,
+  onClick,
+  type = 'button',
+}: {
+  children: React.ReactNode
+  className?: string
+  onClick?: () => void
+  type?: 'button' | 'submit' | 'reset'
+}) {
   return (
     <motion.button
+      type={type}
       className={className}
       onClick={onClick}
       whileHover={{ scale: 1.04, y: -2 }}
@@ -133,6 +144,54 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [whatsappUrl, setWhatsappUrl] = useState('')
+
+  const handleBookingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    const name = (formData.get('name') as string)?.trim() || 'Guest'
+    const phone = (formData.get('phone') as string)?.trim() || ''
+    const safari = (formData.get('safari') as string)?.trim() || 'Morning Safari'
+    const rawDate = (formData.get('date') as string)?.trim() || ''
+    const guests = (formData.get('guests') as string)?.trim() || '2'
+    const pickup = (formData.get('pickup') as string)?.trim() || ''
+    const message = (formData.get('message') as string)?.trim() || ''
+
+    let dateDisplay = rawDate
+    if (rawDate) {
+      try {
+        const d = new Date(rawDate + 'T00:00:00')
+        if (!isNaN(d.getTime())) {
+          dateDisplay = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        }
+      } catch {
+        dateDisplay = rawDate
+      }
+    }
+
+    const templateParts: string[] = [
+      '🐘 *SAFARI BOOKING INQUIRY — SANJU SAFARI*',
+      '',
+      `👤 *Name:* ${name}`,
+      `📞 *Phone / WhatsApp:* ${phone}`,
+      `🚙 *Safari Package:* ${safari}`,
+      dateDisplay ? `📅 *Preferred Date:* ${dateDisplay}` : '',
+      `👥 *Guests:* ${guests} ${guests === '1' ? 'person' : 'guests'}`,
+      pickup ? `📍 *Pickup Location:* ${pickup}` : '📍 *Pickup Location:* To be arranged',
+      message ? `💬 *Special Requests / Notes:*\n${message}` : '',
+      '',
+      '_Sent via Sanju Safari (udawalawesafaris.lk)_',
+    ].filter((item) => item !== '')
+
+    const text = templateParts.join('\n')
+    const url = `https://wa.me/94763080364?text=${encodeURIComponent(text)}`
+
+    setWhatsappUrl(url)
+    setSubmitted(true)
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   // Automatically fetch images from /api/gallery to stay in sync with public/assets/gallery
   useEffect(() => {
@@ -371,7 +430,14 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           transition={{ duration: 0.5, delay: 0.8 }}
         >
           <MagnetButton className="book-button" onClick={() => enquiry()}>Book your safari <ArrowRight /></MagnetButton>
-          <motion.a className="outline-button" href="https://wa.me/94763080364" target="_blank" rel="noreferrer" whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
+          <motion.a
+            className="outline-button"
+            href={`https://wa.me/94763080364?text=${encodeURIComponent('Hello Sanju Safari! 👋 I would like to enquire about a private safari tour in Udawalawe.')}`}
+            target="_blank"
+            rel="noreferrer"
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+          >
             <MessageCircle /> WhatsApp us
           </motion.a>
         </motion.div>
@@ -768,9 +834,20 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
               <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, delay: 0.15 }}>
                 <Check />
               </motion.span>
-              <h3>Thank you — message ready.</h3>
-              <p>WhatsApp should open in a new tab. If it did not, message us directly and we will help plan your safari.</p>
-              <button className="outline-dark" onClick={() => setSubmitted(false)}>Send another enquiry</button>
+              <h3>Thank you — enquiry prepared!</h3>
+              <p>Your details have been formatted for WhatsApp. If WhatsApp did not open automatically, tap below to send your enquiry directly.</p>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '16px' }}>
+                <a
+                  href={whatsappUrl || 'https://wa.me/94763080364'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="book-button"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+                >
+                  <MessageCircle size={17} /> Open WhatsApp
+                </a>
+                <button className="outline-dark" onClick={() => setSubmitted(false)}>Edit enquiry</button>
+              </div>
             </motion.div>
           ) : (
             <motion.form
@@ -779,7 +856,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
-              onSubmit={(e) => { e.preventDefault(); setSubmitted(true); window.open('https://wa.me/94763080364?text=' + encodeURIComponent('Hello Sanju Safari, I would like to enquire about a safari.'), '_blank') }}
+              onSubmit={handleBookingSubmit}
             >
               <div className="form-grid">
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={12}/> Name</span><input required name="name" placeholder="Your name" /></label>
@@ -790,7 +867,7 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
                 <label><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={12}/> Pickup location</span><input name="pickup" placeholder="Hotel or town" /></label>
                 <label className="full"><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MessageSquare size={12}/> Message</span><textarea name="message" rows={3} placeholder="Anything we should know?" /></label>
               </div>
-              <MagnetButton className="book-button" onClick={() => {}}>Continue on WhatsApp <Send size={16} /></MagnetButton>
+              <MagnetButton type="submit" className="book-button">Continue on WhatsApp <Send size={16} /></MagnetButton>
             </motion.form>
           )}
         </AnimatePresence>
@@ -799,7 +876,13 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
         <div className="contact-card">
           <p className="eyebrow">Find us in the field</p>
           <a href="tel:+94763080364"><Phone /> +94 76 308 0364</a>
-          <a href="https://wa.me/94763080364"><MessageCircle /> WhatsApp us</a>
+          <a
+            href={`https://wa.me/94763080364?text=${encodeURIComponent('Hello Sanju Safari! 👋 I would like to check jeep availability and rates for a safari in Udawalawe.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle /> WhatsApp us
+          </a>
           <a href="mailto:info@udawalawesafaris.lk"><Mail /> info@udawalawesafaris.lk</a>
           <p className="address"><strong>Udawalawe, Sri Lanka</strong><br />Daily, 05:00 — 21:00<br />Pickup around Udawalawe and nearby towns.</p>
         </div>
@@ -878,7 +961,9 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
 
     <a
       className="whatsapp-float"
-      href="https://wa.me/94763080364"
+      href={`https://wa.me/94763080364?text=${encodeURIComponent('Hello Sanju Safari! 👋 I would like to enquire about a safari in Udawalawe National Park.')}`}
+      target="_blank"
+      rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
     >
       <MessageCircle />
