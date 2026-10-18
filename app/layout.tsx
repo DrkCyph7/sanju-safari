@@ -12,23 +12,40 @@ export const metadata: Metadata = {
     description: 'Quiet roads. Wild places. A local view of Udawalawe.',
     url: 'https://udawalawesafaris.lk',
     siteName: 'Sanju Safari',
-    type: 'website',
-  },
-  twitter: { card: 'summary_large_image', title: 'Sanju Safari', description: 'Private jeep safaris in Udawalawe National Park.' },
-  generator: 'v0.app',
-  icons: {
-    icon: [
+    images: [
       {
-        url: '/assets/favicon/favicon.svg',
-        type: 'image/svg+xml',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Sanju Safari - Private Jeep Safari in Udawalawe National Park',
       },
     ],
-    apple: '/assets/favicon/favicon.svg',
+    type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sanju Safari | Private Jeep Safari in Sri Lanka',
+    description: 'Quiet roads. Wild places. A local view of Udawalawe.',
+    images: ['/og-image.png'],
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/assets/favicon/icon-dark-32x32.png', type: 'image/png', media: '(prefers-color-scheme: dark)' },
+      { url: '/assets/favicon/icon-light-32x32.png', type: 'image/png', media: '(prefers-color-scheme: light)' },
+      { url: '/assets/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/assets/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/assets/favicon/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'icon', url: '/assets/favicon/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { rel: 'icon', url: '/assets/favicon/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
 }
 
 export const viewport: Viewport = {

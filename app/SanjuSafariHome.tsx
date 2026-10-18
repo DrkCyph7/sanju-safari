@@ -182,8 +182,21 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
       transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       <a href="#home" className="brand" aria-label="Sanju Safari home">
-        <motion.span className="brand-mark" whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300 }}>US</motion.span>
-        <span>Sanju<br /><em>Safari</em></span>
+        <motion.div
+          className="brand-logo-wrap"
+          whileHover={{ scale: 1.1, rotate: 3 }}
+          transition={{ type: 'spring', stiffness: 300 }}
+        >
+          <Image
+            src="/assets/logo/LogoW.png"
+            alt="Sanju Safari Logo"
+            width={38}
+            height={44}
+            className="brand-logo"
+            priority
+          />
+        </motion.div>
+        <span className="brand-text">Sanju<br /><em>Safari</em></span>
       </a>
       <nav className="desktop-nav" aria-label="Primary navigation">
         {[['About', <Info key="a" size={14} />], ['Safaris', <Compass key="s" size={14} />], ['Wildlife', <Binoculars key="w" size={14} />], ['Gallery', <ImageIcon key="g" size={14} />], ['FAQ', <HelpCircle key="f" size={14} />]].map(([item, icon], i) => (
@@ -199,17 +212,38 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
           </motion.a>
         ))}
       </nav>
-      <MagnetButton className="book-button top-book" onClick={() => enquiry()}>
-        Book <ArrowRight data-icon="inline-end" />
-      </MagnetButton>
-      <button
-        className="menu-button"
-        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen((prev) => !prev)}
-      >
-        {menuOpen ? <X /> : <Menu />}
-      </button>
+      <div className="topbar-actions">
+        <motion.a
+          href="tel:+94763080364"
+          className="top-call-button"
+          aria-label="Direct call Sanju Safari at +94 76 308 0364"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+        >
+          <span className="call-pulse-dot" aria-hidden="true" />
+          <Phone size={13} />
+          <span>+94 76 308 0364</span>
+        </motion.a>
+        <MagnetButton className="book-button top-book" onClick={() => enquiry()}>
+          Book <ArrowRight data-icon="inline-end" />
+        </MagnetButton>
+        <motion.a
+          href="tel:+94763080364"
+          className="mobile-topbar-call"
+          aria-label="Call Sanju Safari +94 76 308 0364"
+          whileTap={{ scale: 0.92 }}
+        >
+          <Phone size={18} />
+        </motion.a>
+        <button
+          className="menu-button"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((prev) => !prev)}
+        >
+          {menuOpen ? <X /> : <Menu />}
+        </button>
+      </div>
     </motion.header>
 
     {/* ── Mobile menu ── */}
@@ -224,8 +258,16 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
         >
           <div className="mobile-menu-header">
             <a href="#home" className="brand" aria-label="Sanju Safari home" onClick={() => setMenuOpen(false)}>
-              <span className="brand-mark">US</span>
-              <span>Sanju<br /><em>Safari</em></span>
+              <div className="brand-logo-wrap">
+                <Image
+                  src="/assets/logo/LogoW.png"
+                  alt="Sanju Safari Logo"
+                  width={38}
+                  height={44}
+                  className="brand-logo"
+                />
+              </div>
+              <span className="brand-text">Sanju<br /><em>Safari</em></span>
             </a>
             <button className="close-menu" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
               <X />
@@ -249,6 +291,22 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
               </motion.a>
             )})}
           </nav>
+          <div className="mobile-menu-actions">
+            <a
+              href="tel:+94763080364"
+              className="mobile-call-cta"
+            >
+              <Phone size={18} />
+              <span>Call Us: +94 76 308 0364</span>
+            </a>
+            <button
+              className="book-button"
+              onClick={() => { setMenuOpen(false); enquiry(); }}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              Book a Safari <ArrowRight data-icon="inline-end" />
+            </button>
+          </div>
           <div className="menu-note">Private jeeps. Local knowledge. A quieter way into the wild.</div>
         </motion.div>
       )}
@@ -772,7 +830,16 @@ export default function SanjuSafariHome({ initialGallery = [] }: { initialGaller
     <footer className="footer">
       <AnimatedSection className="footer-brand" direction="up" delay={0.1}>
         <a href="#home" className="brand" aria-label="Sanju Safari home">
-          <span className="brand-mark">US</span><span>Sanju<br /><em>Safari</em></span>
+          <div className="brand-logo-wrap">
+            <Image
+              src="/assets/logo/LogoW.png"
+              alt="Sanju Safari Logo"
+              width={44}
+              height={51}
+              className="brand-logo footer-logo"
+            />
+          </div>
+          <span className="brand-text">Sanju<br /><em>Safari</em></span>
         </a>
         <p>Quiet roads. Wild places.<br />A local view of Udawalawe.</p>
         <a className="footer-location" href="#contact"><MapPin /> Udawalawe, Sri Lanka</a>
